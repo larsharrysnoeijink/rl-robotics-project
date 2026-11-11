@@ -1,0 +1,7 @@
+{
+  // VS Code offers these when a teammate opens the project.
+  "recommendations": [
+    "ms-python.python",
+    "ms-toolsai.jupyter"
+  ]
+}
