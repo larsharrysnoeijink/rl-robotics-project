@@ -42,8 +42,18 @@ The course uses Python 3.12 in a conda environment called `rl`. The full steps a
 | `tests/test_install.py` | Smoke test for the stack: versions, MuJoCo, PyTorch |
 | `context/slides/`, `context/lecture notes/` | Course slides and lecture notes |
 | `context/practicals/` | Lab notebooks for Weeks 1 to 7 |
-| `context/rl-robotics/` | The course's concept knowledge base. It is not in this repo. Get it with `git clone https://github.com/AndreuCecilia/rl-robotics context/rl-robotics`. `llms-full.txt` in it holds the full text of every page. |
+| `context/rl-robotics/` | A copy of the course's concept knowledge base ([site](https://andreucecilia.github.io/rl-robotics/)). `llms-full.txt` in it holds the full text of every page. To update it, see below. |
 | `Project Details Slides.pdf`, `Project Setup Slides.pdf` | Project brief and setup guide |
+
+### Updating the knowledge base
+
+New concept pages are published during the semester. To replace the copy with the latest version, run this in PowerShell from the project folder, then commit:
+
+```
+Remove-Item -Recurse -Force context/rl-robotics
+git clone --depth 1 https://github.com/AndreuCecilia/rl-robotics context/rl-robotics
+Remove-Item -Recurse -Force context/rl-robotics/.git
+```
 
 ## Contact
 

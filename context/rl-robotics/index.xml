@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+    <channel>
+      <title>RL in Robotics - 240MAR45</title>
+      <link>https://AndreuCecilia.github.io/rl-robotics</link>
+      <description>Last 10 notes on RL in Robotics - 240MAR45</description>
+      <generator>Quartz -- quartz.jzhao.xyz</generator>
+      <item>
+    <title>04_Concepts</title>
+    <link>https://AndreuCecilia.github.io/rl-robotics/04_concepts/</link>
+    <guid>https://AndreuCecilia.github.io/rl-robotics/04_concepts/</guid>
+    <description><![CDATA[  ]]></description>
+    <pubDate>Sun, 11 Oct 2026 09:42:42 GMT</pubDate>
+  </item><item>
+    <title>actor-critic</title>
+    <link>https://AndreuCecilia.github.io/rl-robotics/tags/actor-critic</link>
+    <guid>https://AndreuCecilia.github.io/rl-robotics/tags/actor-critic</guid>
+    <description><![CDATA[  ]]></description>
+    <pubDate>Sun, 11 Oct 2026 09:42:42 GMT</pubDate>
+  </item><item>
+    <title>policy-based</title>
+    <link>https://AndreuCecilia.github.io/rl-robotics/tags/policy-based</link>
+    <guid>https://AndreuCecilia.github.io/rl-robotics/tags/policy-based</guid>
+    <description><![CDATA[  ]]></description>
+    <pubDate>Sun, 11 Oct 2026 09:42:42 GMT</pubDate>
+  </item><item>
+    <title>value-based</title>
+    <link>https://AndreuCecilia.github.io/rl-robotics/tags/value-based</link>
+    <guid>https://AndreuCecilia.github.io/rl-robotics/tags/value-based</guid>
+    <description><![CDATA[  ]]></description>
+    <pubDate>Sun, 11 Oct 2026 09:42:42 GMT</pubDate>
+  </item><item>
+    <title>course-framework</title>
+    <link>https://AndreuCecilia.github.io/rl-robotics/tags/course-framework</link>
+    <guid>https://AndreuCecilia.github.io/rl-robotics/tags/course-framework</guid>
+    <description><![CDATA[  ]]></description>
+    <pubDate>Sun, 11 Oct 2026 09:42:42 GMT</pubDate>
+  </item><item>
+    <title>function-approximation</title>
+    <link>https://AndreuCecilia.github.io/rl-robotics/tags/function-approximation</link>
+    <guid>https://AndreuCecilia.github.io/rl-robotics/tags/function-approximation</guid>
+    <description><![CDATA[  ]]></description>
+    <pubDate>Sun, 11 Oct 2026 09:42:42 GMT</pubDate>
+  </item><item>
+    <title>exploration</title>
+    <link>https://AndreuCecilia.github.io/rl-robotics/tags/exploration</link>
+    <guid>https://AndreuCecilia.github.io/rl-robotics/tags/exploration</guid>
+    <description><![CDATA[  ]]></description>
+    <pubDate>Sun, 11 Oct 2026 09:42:42 GMT</pubDate>
+  </item><item>
+    <title>foundations</title>
+    <link>https://AndreuCecilia.github.io/rl-robotics/tags/foundations</link>
+    <guid>https://AndreuCecilia.github.io/rl-robotics/tags/foundations</guid>
+    <description><![CDATA[  ]]></description>
+    <pubDate>Sun, 11 Oct 2026 09:42:42 GMT</pubDate>
+  </item><item>
+    <title>model-based</title>
+    <link>https://AndreuCecilia.github.io/rl-robotics/tags/model-based</link>
+    <guid>https://AndreuCecilia.github.io/rl-robotics/tags/model-based</guid>
+    <description><![CDATA[  ]]></description>
+    <pubDate>Sun, 11 Oct 2026 09:42:42 GMT</pubDate>
+  </item><item>
+    <title>safety</title>
+    <link>https://AndreuCecilia.github.io/rl-robotics/tags/safety</link>
+    <guid>https://AndreuCecilia.github.io/rl-robotics/tags/safety</guid>
+    <description><![CDATA[  ]]></description>
+    <pubDate>Sun, 11 Oct 2026 09:42:42 GMT</pubDate>
+  </item>
+    </channel>
+  </rss>

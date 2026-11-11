@@ -8,9 +8,6 @@ __pycache__/
 .venv/
 venv/
 
-# Course concept knowledge base: a separate git clone, see README
-context/rl-robotics/
-
 # OS files
 .DS_Store
 Thumbs.db
