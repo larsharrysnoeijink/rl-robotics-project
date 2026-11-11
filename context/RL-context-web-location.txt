@@ -1,0 +1,114 @@
+Instructions:
+
+See the link below, it contains all context and topics we have learned in the Reinforcement course for automatic control!
+
+https://andreucecilia.github.io/rl-robotics/
+
+
+Main page of this link says:
+RL in Robotics — Student Companion
+Oct 02, 20264 min read
+
+Reinforcement Learning in Robotics
+240MAR45 · MSc in Automatic Control and Robotics · UPC Barcelona
+
+This is the concept knowledge base for the course: one self-contained note per
+idea, interlinked so you can follow a thread rather than a lecture order.
+
+How to use this site
+
+Concepts are written to be self-contained and cross-linked. Start from
+the unifying diagram below and follow the [[links]] by concept dependency,
+not by lecture order. Use the search (top right) or the graph view to navigate.
+
+The unifying diagram
+Every method in this course lives in one cell of this table. The columns record
+what you know about the dynamics; the rows record what the method explicitly
+represents, i.e. which objects it actually stores and updates.
+
+Explicitly represents	Dynamics model available	No dynamics model (interaction only)
+A value function (value-based)	DP, value iteration, policy iteration, Riccati / LQR	bandit algorithms ¶, TD learning, Q-learning, SARSA, DQN, LSTD
+A policy (policy-based)	iLQR ‖	REINFORCE, REINFORCE with a baseline
+Both (actor-critic)	MPC †	Actor-critic, PPO §, DDPG, TD3, SAC
+‖ Direct trajectory optimisation is not on the grid. It stores an open-loop plan
+{u 
+0
+​
+ ,…,u 
+N−1
+​
+ } (numbers, not a function of state), so it represents no policy at
+all. iLQR earns the cell: its backward pass leaves time-varying gains K 
+k
+​
+ , an explicit
+local feedback law. Read the left column as one spectrum of how much policy is stored:
+DP/LQR (a global policy, through V) → iLQR (a local law along one trajectory) → MPC (none
+stored, recomputed online) → trajectory optimisation (none at all, one plan for one x 
+0
+​
+ ).
+
+¶ Bandit algorithms store one number per action, which is  
+Q
+^
+​
+ (x,a) at the only state there
+is, so they sit in the value row. They are the single occupied cell that approximates no Bellman
+object. Without a successor state there is nothing to bootstrap from, and the update
+μ
+^
+​
+ ← 
+μ
+^
+​
+ +α(r− 
+μ
+^
+​
+ ) is an ordinary running average. Restoring the
+successor state turns it into the temporal-difference update that drives the rest of the course.
+
+† MPC represents a model and a terminal value function, but its policy is implicit,
+recomputed online by solving an optimisation problem at every timestep, never stored.
+
+§ PPO is a policy-gradient method by lineage, but the version everyone runs also fits a
+value network on bootstrapped targets, so it represents both. The dividing line is
+bootstrapping, not “has a value function”.
+
+The columns are the ends of a spectrum, not a binary: robotics usually sits in
+between, with a model partly known and partly learned.
+
+Method names become links as their concept notes are published over the semester.
+
+Start here
+Bellman equation — optimality as a fixed-point recursion, underlying every
+method here.
+Deadly triad — why function approximation, bootstrapping and off-policy
+learning together can diverge.
+Failure modes of approximate RL — the six failure modes that organise the
+rest of the knowledge base.
+Studying with an AI assistant
+This site is built to be AI-readable. To give your assistant (Claude Code,
+Codex, ChatGPT, …) the full course context:
+
+Best: clone the published site and run your assistant inside it, so that
+the whole concept knowledge base works offline:
+git clone https://github.com/AndreuCecilia/rl-robotics
+Or point it at a single URL containing the full text of every published page:
+https://andreucecilia.github.io/rl-robotics/llms-full.txt
+(short index: /llms.txt · machine-readable: /static/contentIndex.json)
+Use it to understand, not to outsource
+
+Ask your assistant to explain, quiz you, and check your derivations, rather than to
+produce your exercise or milestone answers. Graded work is evaluated on your
+depth of analysis, and the exams are written without an assistant:
+understanding you didn’t build yourself won’t survive them.
+
+Course framing
+This course treats RL as approximate dynamic programming under uncertainty
+about the dynamics. If you know LQR, Riccati, Bellman, and MPC, you already
+have most of the scaffolding. RL fills in what to do when the model is unknown
+or the state space is too large to solve exactly. RL is presented as one tool
+among several, not a replacement for classical control.

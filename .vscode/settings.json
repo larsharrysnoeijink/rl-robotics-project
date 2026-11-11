@@ -1,0 +1,11 @@
+{
+  // The course conda env "rl" (Python 3.12). If your conda lives elsewhere, pick the
+  // env once with Ctrl+Shift+P > "Python: Select Interpreter"; that choice overrides this.
+  "python.defaultInterpreterPath": "${env:USERPROFILE}\\miniforge3\\envs\\rl\\python.exe",
+  "python.terminal.activateEnvironment": true,
+
+  // tests/test_install.py is a unittest suite, so the Testing panel runs it too.
+  "python.testing.unittestEnabled": true,
+  "python.testing.pytestEnabled": false,
+  "python.testing.unittestArgs": ["-v", "-s", "./tests", "-p", "test_*.py"]
+}

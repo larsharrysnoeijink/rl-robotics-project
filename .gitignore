@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.pytest_cache/
+
+# Local virtual environments (the course env "rl" is a conda env outside this folder)
+.venv/
+venv/
+
+# Course concept knowledge base: a separate git clone, see README
+context/rl-robotics/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
