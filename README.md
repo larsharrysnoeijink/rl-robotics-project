@@ -1,60 +1,71 @@
-# RL in Robotics: course project
+# Reinforcement Learning in Robotics: cumulative project
 
-Group project for 240MAR45 Reinforcement Learning in Robotics (MSc in Automatic Control and Robotics, UPC Barcelona).
-
-The project code is released on Atenea week by week, from Week 9 on, and each week covers a different RL approach. Every week's homework comes with a document that says where the new code goes. Keep the provided structure, so that later releases fit in without conflicts.
+One task, several methods, compared on the same axes.
 
 ## The task
 
-A torque-limited planar arm with two joints has to reach a target position.
+A planar arm with two links moves in a vertical plane under gravity and starts hanging down. Its
+fingertip must reach a target above the shoulder without passing through a circular obstacle. The elbow
+bends one way only.
 
-- The arm moves in a vertical plane under gravity and starts hanging down.
-- Its torque limits are too small to lift it straight to the target, so it has to build up momentum first.
-- It is fully actuated, with one motor per joint.
-- State: x = (θ1, θ2, θ1', θ2').
-- Action: u = (τ1, τ2) ∈ [−1, 1]².
-- Reward, as written on slide 4: r = ‖p − p_target‖ − 0.05 · ‖u‖², where p is the end-effector position. The distance term is presumably meant as a cost (negative). Check the sign in the environment code when it is released.
-- An episode lasts 200 steps.
+- **State:** joint angles and joint velocities (4 numbers).
+- **Action:** the fraction of the torque limit applied at each joint, between -1 and 1 (2 numbers).
+- **Reward:** minus the distance to the target, with a small penalty on the action.
+- **Cost:** 1 for each step the fingertip spends inside the obstacle. The reward does not see it.
+- **Episode:** 200 steps at 50 Hz, 4 seconds.
 
-## Setup (once per laptop)
+The shoulder cannot lift the outstretched arm, so the torque limit matters. Try `LQR` from the start
+state and you will see what that does to a controller linearised at the target.
 
-The course uses Python 3.12 in a conda environment called `rl`. The full steps are in `Project Setup Slides.pdf`.
+Evaluation always starts from hanging. Training episodes start from a random pose, because the arm has
+to move away from the target before it can reach it, and a learner that only ever starts from hanging
+rarely sees the states that matter. This is a privilege of the simulator. On a real robot, someone would
+have to put the arm there.
 
-1. Install [Miniforge](https://conda-forge.org/download/) or Miniconda, and VS Code with the Python and Jupyter extensions.
-2. Let PowerShell use conda. In PowerShell, run `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`. Then, in the Miniforge (or Anaconda) Prompt, run `conda init powershell`.
-3. Open this folder in VS Code, open a new terminal, and run:
+## Install
 
-   ```
-   conda create -n rl python=3.12
-   conda activate rl
-   python -m pip install -r requirements.txt
-   python tests/test_install.py
-   ```
-
-   The last command should end with `setup OK`.
-4. Check that the VS Code status bar shows `rl (3.12.x)`. If it doesn't, press Ctrl+Shift+P, choose **Python: Select Interpreter**, and pick the `rl` environment (for example `C:\Users\<you>\miniforge3\envs\rl\python.exe`).
-
-## Layout
-
-| Path | What it is |
-|---|---|
-| `requirements.txt` | The pinned course stack, the same versions as Colab runtime 2026.07 |
-| `tests/test_install.py` | Smoke test for the stack: versions, MuJoCo, PyTorch |
-| `context/slides/`, `context/lecture notes/` | Course slides and lecture notes |
-| `context/practicals/` | Lab notebooks for Weeks 1 to 7 |
-| `context/rl-robotics/` | A copy of the course's concept knowledge base ([site](https://andreucecilia.github.io/rl-robotics/)). `llms-full.txt` in it holds the full text of every page. To update it, see below. |
-| `Project Details Slides.pdf`, `Project Setup Slides.pdf` | Project brief and setup guide |
-
-### Updating the knowledge base
-
-New concept pages are published during the semester. To replace the copy with the latest version, run this in PowerShell from the project folder, then commit:
+Python 3.12 with Miniforge or Anaconda, from the project folder:
 
 ```
-Remove-Item -Recurse -Force context/rl-robotics
-git clone --depth 1 https://github.com/AndreuCecilia/rl-robotics context/rl-robotics
-Remove-Item -Recurse -Force context/rl-robotics/.git
+conda create -n rl python=3.12
+conda activate rl
+python -m pip install -r requirements.txt
+python tests/test_install.py
 ```
 
-## Contact
+The last line must end with `setup OK`. On Linux, read the note at the top of `requirements.txt` first.
 
-Questions about the homework go to aniol.civit@upc.edu. Finish each week's homework before the class: some checkpoint quizzes need your trained models.
+## Use
+
+```
+python train.py --algo REINFORCE --seed 3 --steps 100000      # train, writes to runs/
+python train.py --algo LQR                                    # baselines have nothing to train
+python compare.py                                             # table and plot of everything in runs/
+python compare.py --x wall --metric cost                      # other axes and metrics
+python watch.py --algo REINFORCE --run runs/PlanarArm-v0_REINFORCE_base_seed3       # opens a window
+python watch.py --algo LQR --path                             # saves the fingertip path as an image
+```
+
+To try a change of hyperparameters, name the experiment so its runs stay apart:
+
+```
+python train.py --algo REINFORCE --seed 3 --variation lr3e4 --set lr=3e-4
+```
+
+`python train.py --help` lists every option. Each run writes `results.npz` and `final.pt` to its folder
+under `runs/`. Press Ctrl+C to stop a run early and keep what it has.
+
+## Homework
+
+Each homework comes with a brief in `briefs/`, which says what to run and which questions to prepare
+for the oral check. New code arrives as a zip to unpack over this folder. Releases only add files, so
+your work stays as it is.
+
+Complete the sections marked `YOUR CODE HERE`, and check them with the test the brief names:
+
+```
+python -m unittest tests.test_c1_baseline
+```
+
+Run `python -m unittest discover -s tests -t .` if you suspect your installation. Tests named after a
+homework you have not done yet fail with `NotImplementedError`, which is expected.

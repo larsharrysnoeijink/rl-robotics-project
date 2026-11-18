@@ -1,0 +1,37 @@
+<mujoco model="planar_arm">
+  <!-- Two links in the vertical x-z plane. Angles are measured from hanging straight down.
+       The numbers must match envs/planar_arm.py; tests/test_env.py checks that they do. -->
+  <compiler angle="radian"/>
+  <option gravity="0 0 -9.81" integrator="RK4" timestep="0.01"/>
+  <default>
+    <joint type="hinge" axis="0 -1 0" damping="0.1" limited="true"/>
+    <geom contype="0" conaffinity="0"/>
+    <motor ctrllimited="true" ctrlrange="-1 1"/>
+  </default>
+  <visual>
+    <global offwidth="640" offheight="480"/>
+  </visual>
+  <worldbody>
+    <light pos="0 -2 2" dir="0 1 -1"/>
+    <geom name="wall" type="plane" pos="0 0.2 0" zaxis="0 -1 0" size="2 2 0.1" rgba="0.92 0.92 0.92 1"/>
+    <geom name="base" type="sphere" pos="0 0 0" size="0.03" rgba="0.2 0.2 0.2 1"/>
+    <!-- Obstacle and target are markers only: nothing collides, the cost signal reports entry. -->
+    <geom name="obstacle" type="sphere" pos="0.22 0 0.2" size="0.25" rgba="0.85 0.2 0.2 0.5"/>
+    <site name="target" pos="0.35 0 0.6" size="0.025" rgba="0.1 0.7 0.2 1"/>
+    <body name="link1" pos="0 0 0">
+      <joint name="shoulder" range="-4 4"/>
+      <inertial pos="0 0 -0.25" mass="1" diaginertia="0.020833 0.020833 0.0001"/>
+      <geom type="capsule" fromto="0 0 0 0 0 -0.5" size="0.02" rgba="0.1 0.4 0.8 1"/>
+      <body name="link2" pos="0 0 -0.5">
+        <joint name="elbow" range="-2.8 0.2"/>
+        <inertial pos="0 0 -0.25" mass="1" diaginertia="0.020833 0.020833 0.0001"/>
+        <geom type="capsule" fromto="0 0 0 0 0 -0.5" size="0.02" rgba="0.1 0.6 0.9 1"/>
+        <site name="fingertip" pos="0 0 -0.5" size="0.02" rgba="0.9 0.6 0.1 1"/>
+      </body>
+    </body>
+  </worldbody>
+  <actuator>
+    <motor name="shoulder_motor" joint="shoulder" gear="6"/>
+    <motor name="elbow_motor" joint="elbow" gear="5"/>
+  </actuator>
+</mujoco>
