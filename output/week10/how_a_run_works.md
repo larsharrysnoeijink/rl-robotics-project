@@ -331,6 +331,8 @@ These are the numbers the brief's scripts printed. Interpreting them is ours to 
 
 On the LQR, no estimator's mean differed from the full-return mean by more than 2 standard errors on any parameter. On the arm, 2 % of the parameters did with the baseline.
 
+**A caution about the two arm values without a baseline.** The formula divides by the squared mean of the samples. When the episodes cannot pin that mean down, which happens with about 4 600 parameters and 1 000 episodes, the result sits near the number of episodes whatever the truth is. So 1255.9 and 753.1 probably underestimate the true values. The arm baseline value (14.3) and all the LQR values are far below that limit, so they are fine.
+
 **Arm**, final evaluation, from hanging and without noise:
 
 | Run | Seed 80 | Seed 81 | Seed 82 | Mean ± std |
@@ -499,9 +501,70 @@ How to read it:
 
 The brief asks for one change in the oral, so we present one of these and keep the others as supporting evidence.
 
-**Result:** after the runs.
+**Result.** Figure 6 (`python output/week10/explain_part5.py`) puts everything in one place. `outputs/part5/` has the `compare.py` plots the brief asks for.
 
-**Explanation:** after the runs.
+![Figure 6](fig6_part5.png)
+
+Final evaluation, from hanging, without noise:
+
+| Experiment | Return, seeds 80 / 81 / 82 | Mean ± std | Distance (m), 80 / 81 / 82 | Cost, 80 / 81 / 82 |
+|---|---|---|---|---|
+| base | −140.1 / −349.4 / −280.0 | −256.5 ± 87.1 | 0.53 / 1.67 / 1.62 | 173 / 0 / 0 |
+| `blr3e3` | −133.3 / −344.4 / −132.3 | −203.3 ± 99.8 | 0.53 / 1.68 / 0.53 | 173 / 0 / 174 |
+| `blr3e4` | −140.3 / −166.0 / −176.1 | **−160.8 ± 15.1** | 0.53 / 0.74 / 0.74 | 173 / 11 / 10 |
+| `bhid128` | −138.4 / −280.7 / −164.4 | −194.5 ± 61.9 | 0.53 / **0.32** / 0.69 | 173 / 0 / 0 |
+| `steps600k` | −139.6 / −349.4 / −276.4 | −255.2 ± 87.0 | 0.53 / 1.67 / 1.64 | 173 / 0 / 0 |
+| REINFORCE, no baseline (reference) | −135.9 / −176.1 / −178.4 | −163.5 ± 19.5 | 0.53 / 0.77 / 0.74 | 169 / 39 / 10 |
+
+The baseline and the variance at the checkpoints, as the median of the 3 seeds. "Base" is `steps600k` up to 300k steps: the two are identical there (same seeds, and training is deterministic).
+
+| Experiment | $R^2$ of the run's baseline at 100k / 200k / 300k | Variance with the run's baseline ÷ variance without one, at 100k / 200k / 300k |
+|---|---|---|
+| base | −0.08 / 0.31 / 0.40 | 0.38 / 0.11 / 0.12 |
+| `blr3e3` | 0.45 / 0.52 / 0.58 | 0.08 / 0.03 / 0.02 |
+| `blr3e4` | −0.18 / −0.13 / 0.13 | 0.30 / 0.17 / 0.09 |
+| `bhid128` | 0.09 / 0.33 / 0.44 | 0.10 / 0.05 / 0.04 |
+
+**The prediction against the data**, link by link:
+
+| Hypothesis | Link | What the data show | Verdict |
+|---|---|---|---|
+| H1, faster `baseline_lr` (`blr3e3`) | baseline fits better | $R^2$ 0.45–0.58 against −0.08–0.40 | held |
+| | lower variance | ratio 0.08 → 0.02 against 0.38 → 0.12 | held |
+| | better policy | mean better by 53, but the spread is ±100. Only seed 82 changed its ending, from hanging to inside the obstacle, and the mean cost doubled (116 against 58) | not shown |
+| H1, slower `baseline_lr` (`blr3e4`) | baseline fits worse | $R^2$ below 0 for the first 200k steps | as theory says |
+| | higher variance | ratio 0.30 → 0.09, the highest of all | as theory says |
+| | so a worse policy | the **best** result of all: −160.8 ± 15.1. All seeds leave the hanging pose, almost exactly like plain REINFORCE | **the opposite** |
+| H2, bigger baseline (`bhid128`) | baseline fits better | slightly, mostly early: 0.09 against −0.08 at 100k | weakly held |
+| | lower variance | ratio 0.10 → 0.04 against 0.38 → 0.12 | held |
+| | better policy | mean better by 62 (±62 against ±87). Seeds 81 and 82 leave hanging, and seed 81 ends closest to the target of any run (0.32 m). But its random draws differ from base from the first episode on, so this is closer to a new seed | partly, within the spread |
+| H3, more steps: variance only increases | variance over time (Figure 6g) | **Without** a baseline the variance rose on every seed, from 100k to 600k: ×1.4, ×2.8 and ×9.8. **With** the run's baseline, the one the update actually uses, it fell on seeds 80 and 81 (×0.07, ×0.36) and rose on seed 82 (×1.7); the median ratio went from 0.38 to 0.03. $\sigma$ stayed between 0.55 and 0.67 | partly: true without a baseline, not for the estimator the algorithm uses |
+| | more steps help? | the extra 300k steps changed nothing: −256.5 → −255.2, every seed in the same place | our idea implied no gain; none came |
+| H4, larger $\gamma$: more variance | relative variance (Figure 6i) | scalar LQR, $\gamma$ 0.9 → 0.999: 21.0 → 32.1 without a baseline, 3.9 → 7.6 with one. On the arm, with a baseline: 133 → 249 → 310 for $\gamma$ = 0.95, 0.99, 0.999; the arm values without a baseline are not resolved by 500 episodes | held |
+
+**What the runs show about our reasoning:**
+
+- **The variance part holds.** A faster or bigger baseline fits $G_t$ better and lowers the variance, a slower one does the opposite, and a larger $\gamma$ raises the variance.
+- **The step "lower variance, so a better policy" does not hold on these seeds.** The lowest-variance runs (`blr3e3`) were not the best. The noisiest baseline (`blr3e4`) was the best and the most consistent, level with plain REINFORCE.
+- **More training did not help at all**, and the variance it raised was mainly that of the estimator the algorithm does not use.
+
+**How sure we can be.** Each seed ends in one of a few distinct endings:
+
+- inside the obstacle: cost about 173, 0.53 m, return −130 to −140 (seed 80 in every experiment);
+- still hanging: cost 0, 1.62–1.68 m, return −280 to −350;
+- short of the target with little cost: about 0.74 m, return −166 to −178.
+
+One seed switching ending moves the mean by 50 to 70. With 3 seeds, differences of that size rest on one or two seeds.
+
+**Explanation.** This is the fourth line of part 5, and ours to write. Questions to build it from:
+
+1. In 6e and 6f, `blr3e4`'s baseline is the worst, with $R^2 < 0$ for 200k steps. What does a baseline with $R^2 < 0$ do to $\delta_t$? How close does that bring REINFORCE-BASELINE to plain REINFORCE? Compare the two in 6b to 6d.
+2. Seed 80 ends in the same place in every experiment, and base seed 81 stays hanging through 300k extra steps. What does that say about where these runs get stuck? Can a lower-variance estimate of the *same mean* gradient get a run out of such a place? (Section 4, questions 1 and 2; Figure 3.)
+3. What does a baseline change in the mean of the gradient (section 8, question 2)? Which link of the chain "better baseline → lower variance → better policy" does theory guarantee, and which not?
+4. H3: how can the variance without a baseline grow while the variance with the baseline falls? (6e, $R^2$ over training.)
+5. With endings this discrete, how many seeds would we need before a difference of 50 in mean return means something?
+
+For the oral we present **one** of these changes with its four lines, and keep the others as supporting evidence.
 
 ## 8. Part 6: the pre-session questions
 
@@ -672,8 +735,12 @@ See section 7.7.
 | `outputs/gradient_variance_*.npz` | The variance measurement; the printed table is in section 6 (question 2) |
 | `outputs/comparison_*_return_steps.png` | Evaluation curves of every experiment (questions 4 and 5) |
 | `outputs/path_REINFORCE-BASELINE.png` | Fingertip path of the seed-80 policy, from `watch.py --path` |
-| `outputs/part5/` | Part 5 plots, once we have run it |
+| `outputs/part5/` | Part 5: `compare.py` plots of return, distance and cost with every arm experiment |
+| `runs/PlanarArm-v0_REINFORCE-BASELINE_{blr3e3,blr3e4,bhid128,steps600k}_seed8*` | The part 5 runs, with a checkpoint every 100k steps |
 | `output/week10/fig1` to `fig4_*.png` | Figures 1 to 4, drawn by `explain_runs.py` |
 | `output/week10/fig5_score_and_variance.png` | Figure 5, drawn by `explain_gradient.py` |
-| `output/week10/baseline_quality.py` | How well a run's own baseline fits and how much it cuts the variance (section 7.6) |
+| `output/week10/fig6_part5.png` | Figure 6, the part 5 comparison, drawn by `explain_part5.py` |
+| `output/week10/baseline_quality.py` | How well a run's own baseline fits and how much it cuts the variance (sections 7.6 and 7.7) |
+| `output/week10/part5_measurements.csv` | Its measurements at every part 5 checkpoint (Figure 6e–h) |
+| `output/week10/gamma_variance.py`, `gamma_variance_lqr.csv` | The $\gamma$ check of H4 (Figure 6i) |
 | `output/week10/baseline_loss_explained.png` | What `baseline_loss` measures |

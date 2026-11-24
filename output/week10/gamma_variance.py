@@ -1,6 +1,8 @@
 """Does a larger discount gamma give a noisier policy-gradient estimate? A measurement, no training.
 
     python output/week10/gamma_variance.py --gammas 0.95 0.99 0.999
+    python output/week10/gamma_variance.py --env ScalarLQR-v0 --gammas 0.9 0.95 0.98 0.99 0.999 \
+        --episodes 3000 --csv output/week10/gamma_variance_lqr.csv     (the data of Figure 6i)
 
 Builds the untrained REINFORCE-BASELINE policy of seed 80 (the policy every arm run starts from) and
 measures, with experiments/gradient_variance.py, the relative variance
@@ -35,6 +37,7 @@ parser.add_argument("--gammas", type=float, nargs="+", default=[0.95, 0.99, 0.99
 parser.add_argument("--episodes", type=int, default=500)
 parser.add_argument("--fit-episodes", type=int, default=200)
 parser.add_argument("--seed", type=int, default=80)
+parser.add_argument("--csv", default=None, help="append one row per gamma to this file")
 args = parser.parse_args()
 torch.set_num_threads(1)
 
@@ -45,5 +48,12 @@ for gamma in args.gammas:
     agent, _ = build_agent("REINFORCE-BASELINE", env, {"gamma": gamma, **extra})
     samples = measure(agent.policy, env, args.fit_episodes, args.episodes, gamma, (64, 64), args.seed)
     env.close()
-    print(f"gamma {gamma:<6} relative variance: reward-to-go {relative_variance(samples['reward-to-go']):8.1f}"
-          f"   baseline {relative_variance(samples['baseline']):8.1f}", flush=True)
+    rtg, base = relative_variance(samples["reward-to-go"]), relative_variance(samples["baseline"])
+    print(f"gamma {gamma:<6} relative variance: reward-to-go {rtg:8.1f}   baseline {base:8.1f}", flush=True)
+    if args.csv:
+        path = Path(args.csv)
+        new = not path.exists()
+        with open(path, "a", encoding="utf-8") as f:
+            if new:
+                f.write("gamma,reward_to_go,baseline\n")
+            f.write(f"{gamma},{rtg:.1f},{base:.1f}\n")
