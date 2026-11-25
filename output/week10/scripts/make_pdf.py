@@ -23,24 +23,30 @@ BROWSERS = (r"C:\Program Files\Google\Chrome\Application\chrome.exe",
             r"C:\Program Files\Microsoft\Edge\Application\msedge.exe")
 
 CSS = """
-@page { size: A4 landscape; margin: 13mm 14mm; }
-body { font-family: "Segoe UI", Arial, sans-serif; font-size: 11pt; line-height: 1.45; color: #111; }
+@page {
+  size: A4 landscape; margin: 11mm 14mm 13mm;
+  @bottom-left { content: "TITLE"; font: 8.5pt "Segoe UI", Arial, sans-serif; color: #777; }
+  @bottom-right { content: counter(page) " / " counter(pages); font: 8.5pt "Segoe UI", Arial, sans-serif; color: #777; }
+}
+body { font-family: "Segoe UI", Arial, sans-serif; font-size: 10.5pt; line-height: 1.4; color: #111; }
 h1 { font-size: 21pt; margin: 0 0 4mm; }
-h2 { font-size: 16pt; margin: 0 0 3mm; padding-bottom: 1.5mm; border-bottom: 1.5px solid #888; break-before: page; }
+h2 { font-size: 16pt; margin: 0 0 3mm; padding-bottom: 1.5mm; border-bottom: 1.5px solid #888; break-before: page;
+     break-after: avoid; }
 h2:first-of-type { break-before: auto; margin-top: 6mm; }
-h3 { font-size: 12.5pt; margin: 5mm 0 2mm; break-after: avoid; }
+h3 { font-size: 12pt; margin: 4mm 0 1.5mm; break-after: avoid; }
 p, ul, ol, blockquote, pre { max-width: 225mm; }
 p, li { orphans: 3; widows: 3; }
 p:has(> strong:only-child) { break-after: avoid; }
-li { margin: 1mm 0; }
+li { margin: 1mm 0; break-inside: avoid; }
+blockquote { break-inside: avoid; }
 p:has(img) { max-width: none; }
-img { display: block; max-width: 100%; max-height: 104mm; margin: 3mm auto; break-inside: avoid; }
+img { display: block; max-width: 100%; max-height: 99mm; margin: 3mm auto; break-inside: avoid; }
 table { border-collapse: collapse; margin: 3mm 0; font-size: 10pt; break-inside: avoid; }
 th, td { border: 1px solid #999; padding: 1.4mm 2.5mm; text-align: left; vertical-align: top; }
 th { background: #eee; }
-code { font-family: Consolas, monospace; font-size: 9.5pt; background: #f2f2f2; padding: 0 1mm; border-radius: 2px; }
+code { font-family: Consolas, monospace; font-size: 9.5pt; background: #f2f2f2; padding: 0 1mm; border-radius: 2px; white-space: nowrap; }
 pre { background: #f2f2f2; padding: 2.5mm 3mm; break-inside: avoid; white-space: pre-wrap; }
-pre code { padding: 0; background: none; }
+pre code { padding: 0; background: none; white-space: pre-wrap; }
 blockquote { margin: 3mm 0; padding: 0.5mm 4mm; border-left: 3px solid #777; color: #333; background: #fafafa; }
 math { font-family: "Cambria Math", "STIX Two Math", serif; font-size: 108%; }
 math[display="block"] { margin: 3mm 0; break-inside: avoid; }
@@ -61,10 +67,13 @@ def to_html(note):
     text = note.read_text(encoding="utf-8")
     # mistune wants display formulas on their own lines: turn "$$x$$" on one line into three lines.
     text = re.sub(r"^([ >]*)\$\$(.+?)\$\$[ \t]*$", r"\1$$\n\1\2\n\1$$", text, flags=re.M)
+    # A hint that only makes sense in the editor has no place on paper.
+    text = re.sub(r" ?Open (it|this file) with \*\*Ctrl\+Shift\+V\*\*[^.]*\.", "", text)
     body = mistune.create_markdown(renderer=Renderer(escape=False), plugins=["table", "math"])(text)
     title = text.splitlines()[0].lstrip("# ").strip()
     return (f'<!doctype html><html><head><meta charset="utf-8"><title>{title}</title>'
-            f'<base href="{note.parent.as_uri()}/"><style>{CSS}</style></head><body>{body}</body></html>')
+            f'<base href="{note.parent.as_uri()}/"><style>{CSS.replace("TITLE", title)}</style></head>'
+            f'<body>{body}</body></html>')
 
 
 def main():

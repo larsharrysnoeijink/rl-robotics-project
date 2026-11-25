@@ -292,7 +292,7 @@ delta_t = returns - baseline_values.detach()
 
 **Answer.** The four lines of part 5. In one breath: we made the baseline learn 3 times faster. We predicted a better baseline, less noise, and so a better arm. The baseline did predict better and the noise fell (2 % left instead of 12 %). The arm did not clearly improve: one seed of three changed its ending. The baseline changes the noise, not where the steps lead, and the arm's problem is dead ends.
 
-**Did any of the changes we tried improve the result?** On the average return, yes; reliably, no. Besides `blr3e3` we tried three more settings on the same seeds. Those runs are no longer in `runs/` (they are in the git history), so only `blr3e3` can be shown on screen.
+**Did any of the changes we tried improve the result?** On the average return, yes; reliably, no.
 
 | Setting | Return, mean ± std | Runs left hanging | Against base (−257 ± 87) |
 |---|---|---|---|
@@ -308,11 +308,37 @@ delta_t = returns - baseline_values.detach()
 
 ## What Week 10 adds (actor-critic)
 
-We ran everything with the Week 9 method. The Week 10 deck and notes put three of our findings in context. We did not test any of this.
+Everything in this homework uses the Week 9 method. Week 10 teaches the next method, called actor-critic. We did not run it. It does help to understand three of our results.
 
-- **Our $\delta$ has a name: the advantage.** The deck defines it as "how much better taking u at x is than what π does there on average". That is our "better or worse than usual".
-- **A critic is our baseline, allowed to bootstrap.** Our baseline learns from the return of the whole episode. A critic learns from one reward plus its own guess for the next state. That removes most of the noise, at the price of a bias while the critic is still wrong. The deck warns that early in a run the critic is poor; our baseline was poor early too (part 5, panel a).
-- **It confirms what held the arm back.** The notes say about the critic: "mode 4, exploration, is untouched by the construction." So neither a better baseline nor a critic makes the policy explore more. The deck's answer to that problem is a separate idea, an entropy term that pays the policy for keeping its actions spread out: "Entropy buys exploration".
+### 1. Our "better or worse than usual" has an official name
+
+In our code, $\delta$ is the return minus the baseline. Week 10 calls the thing this measures the **advantage** of an action. The deck's definition:
+
+> "how much better taking u at x is than what π does there on average"
+
+In plain words: if the advantage is positive, the action was better than what the policy normally does in that state. If it is negative, it was worse.
+
+### 2. A critic is a baseline that learns in a different way
+
+**Our baseline (Week 9) waits until the episode is over.** Then it looks at the return that really came and moves its guess towards it. That return is a sum of up to 200 rewards, each a little random. So the baseline learns from a very noisy number.
+
+**A critic (Week 10) does not wait.** After every single step it takes the one reward it just got and adds *its own guess* for the state it landed in. It learns from that. Learning from your own guess is called **bootstrapping**.
+
+- **What that buys:** much less noise. Only one step of randomness is involved, not a whole episode.
+- **What it costs:** the critic's own guess is part of what it learns from. While that guess is still wrong, it is learning from something wrong. The deck calls this a **bias**. Our baseline does not have this problem; it only has the noise.
+- **The link to our runs:** the deck warns that the critic is poor early in training. Our baseline was too. In part 5 (panel a) it predicts the returns badly during the first 100 000 steps.
+
+### 3. Week 10 confirms why the arm got stuck
+
+Our finding was: a better baseline made the gradient cleaner, but the arm stayed in its dead ends, because the policy never tries anything really different.
+
+The Week 10 notes say the same about the critic:
+
+> "mode 4, exploration, is untouched by the construction."
+
+"Mode 4" is the course's name for *not exploring enough*. So a better baseline does not make the policy explore more, and neither does a critic.
+
+For that problem the deck names a different tool, an **entropy term**. It gives the policy a small extra reward for keeping its actions varied, so that it keeps trying new things. In the deck's words: "Entropy buys exploration".
 
 ## Where everything is
 
